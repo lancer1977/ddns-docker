@@ -25,7 +25,10 @@ RUN wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
 RUN chmod +x yq
 RUN mv yq /usr/local/bin/
 
-RUN echo "${CRON_VALUE} /bin/bash /usr/local/bin/loop.sh" > /etc/cron.d/script-cron
+#RUN echo "${CRON_VALUE} /bin/bash /usr/local/bin/loop.sh" > /etc/cron.d/script-cron
+RUN echo "$CRON_VALUE /bin/bash /script.sh" > /var/spool/cron/crontabs/root
+
+
 
 # Start the cron service
 #CMD cron && tail -f /dev/null
