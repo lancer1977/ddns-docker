@@ -1,0 +1,14 @@
+version: "3.7"
+services:
+  calibre:
+    image:  lancer1977/cloudflare-anames
+    container_name: cloudflare-anames
+    environment:
+      - EMAIL="YOUR_EMAIL"
+      - API_KEY="YOUR_CLOUDFLARE_API_KEY"
+      - ZONE_ID="YOUR_CLOUDFLARE_ZONE_ID"
+      - API_TOKEN="YOUR_CLOUDFLARE_API_TOKEN"
+      - DOMAIN="YOUR_WEBSITE"   
+      - CRON_VALUE="0 0 * * *"
+    volumes:
+      - ./config:/config
