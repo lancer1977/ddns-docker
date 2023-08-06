@@ -1,7 +1,7 @@
 #!/bin/bash
 
  
-RECORD_NAME=$2
+RECORD_NAME=$1
 TARGET_IP=$(curl -s https://ipinfo.io/ip)
  
 

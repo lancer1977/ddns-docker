@@ -9,6 +9,5 @@ services:
       - ZONE_ID="YOUR_CLOUDFLARE_ZONE_ID"
       - API_TOKEN="YOUR_CLOUDFLARE_API_TOKEN"
       - DOMAIN="YOUR_WEBSITE"   
+      - CLOUDFLARE_ANAMES="dashy,api,identity"
       - CRON_VALUE="0 0 * * *"
-    volumes:
-      - ./config:/config
