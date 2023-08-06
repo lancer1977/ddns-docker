@@ -1,15 +1,18 @@
 #!/bin/bash 
-echo "Starting Up"
-homedir=$HOME
-input_file="/config/arecords.txt"
+echo "Starting Up" 
+# Your comma-separated string list
+ 
 
-if [[ ! -f "$input_file" ]]; then
-  echo "Error: Input file '$input_file' not found."
-else
-  # Read the words from the input file and iterate over them in a for loop
-  while IFS= read -r word; do
-    echo "Processing cname: $word"
-    /usr/local/bin/cloudflare.sh $word
-  done < "$input_file"
-  echo "Successfully updated records."
-fi
+# Set the Internal Field Separator to comma (,)
+IFS=','
+
+# Iterate over the elements in the list using a for loop
+for name in $CLOUDFLARE_ANAMES; do 
+    echo "Processing cname: $name"
+    /usr/local/bin/cloudflare.sh $name 
+done
+
+# Reset the Internal Field Separator to its default value (space, tab, and newline)
+unset IFS
+ 
+ 
