@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM alpine:latest
 env EMAIL "YOUR_EMAIL"
 env API_KEY "YOUR_CLOUDFLARE_API_KEY"
 env ZONE_ID "YOUR_CLOUDFLARE_ZONE_ID"
@@ -13,7 +13,8 @@ ENV CRON_VALUE "0 0 * * *"
 #FROM ubuntu:latest
 
 # Install necessary packages (curl in this case) if required
-RUN apt-get update && apt-get install -y curl wget
+RUN apk --no-cache add curl
+#RUN apt-get update && apt-get install -y curl wget UBUNTU
 #MAKEDIR /config
 # Copy the Linux script into the container
 COPY *.sh /usr/local/bin/
