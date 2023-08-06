@@ -5,40 +5,26 @@ env ZONE_ID "YOUR_CLOUDFLARE_ZONE_ID"
 env API_TOKEN "YOUR_CLOUDFLARE_API_TOKEN"
 ENV DOMAIN "polyhydragames.com"
 ENV CLOUDFLARE_ANAMES "dashy,api,identity"
-ENV CRON_VALUE "0 * * * *"
-# Replace with your desired CNAME record name
-
-
-# Use a base image with a Linux distribution of your choice
-#FROM ubuntu:latest
+ENV CRON_VALUE "1 * * * *"
 
 # Install necessary packages (curl in this case) if required
-RUN apk --no-cache add curl
-#RUN apt-get update && apt-get install -y curl wget UBUNTU
-
-# Copy the Linux script into the container
-COPY loop.sh /loop.sh
-COPY cloudflare.sh /cloudflare.sh
-
-# Set execute permissions for the script
-RUN chmod +x /*.sh
-
+RUN apk update && apk add --no-cache bash dcron curl
 RUN wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O yq
 RUN chmod +x yq
 RUN mv yq /usr/local/bin/
+RUN mkdir /logs
+RUN echo -e "#!/bin/sh\n\
+echo \"\$CRON_VALUE /scripts/loop.sh\" > /var/spool/cron/crontabs/root\n\
+crond -f" > /entrypoint.sh
 
-#RUN echo "${CRON_VALUE} /bin/bash /usr/local/bin/loop.sh" > /etc/cron.d/script-cron
-RUN echo "$CRON_VALUE /bin/bash /loop.sh" > /var/spool/cron/crontabs/root
+RUN chmod +x /entrypoint.sh
 
+# Copy the Linux script into the container
+COPY loop.sh /scripts/loop.sh
+COPY cloudflare.sh /scripts/cloudflare.sh
 
+# Set execute permissions for the script
+RUN chmod +x /scripts/*.sh
 
-# Start the cron service
-#CMD cron && tail -f /dev/null
-
-#FOR TESTING
-#CMD ["/usr/local/bin/loop.sh"]
-
-ENTRYPOINT ["/loop.sh"]
-
-# Start the cron service in the foreground
-CMD ["crond", "-f"]
+# Set the entrypoint script as the entry point for the container
+ENTRYPOINT ["/entrypoint.sh"]
