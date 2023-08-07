@@ -13,6 +13,11 @@ RUN wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
 RUN chmod +x yq
 RUN mv yq /usr/local/bin/
 RUN mkdir /logs
+RUN echo -e "#!/bin/sh\n\
+echo \"\$CRON_VALUE /bin/bash /scripts/loop.sh >> /logs/cron_log.txt 2>&1\" > /var/spool/cron/crontabs/root\n\
+crond -f" > /entrypoint.sh
+
+RUN chmod +x /entrypoint.sh
 
 # Copy the Linux script into the container
 COPY loop.sh /scripts/loop.sh
@@ -21,6 +26,5 @@ COPY cloudflare.sh /scripts/cloudflare.sh
 # Set execute permissions for the script
 RUN chmod +x /scripts/*.sh
 
-RUN echo "${CRON_VALUE} /bin/bash /scripts/loop.sh >> /logs/cron_log.txt 2>&1" > /var/spool/cron/crontabs/root
 # Set the entrypoint script as the entry point for the container
-CMD crond -f -l 8 && tail -f /dev/null
+ENTRYPOINT ["/entrypoint.sh"]

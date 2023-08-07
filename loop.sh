@@ -6,7 +6,7 @@ IFS=','
 # Iterate over the elements in the list using a for loop
 for name in $CLOUDFLARE_ANAMES; do 
     echo "Processing cname: $name"
-    ./cloudflare.sh $name 
+    bash /scripts/cloudflare.sh $name 
 done
 # Reset the Internal Field Separator to its default value (space, tab, and newline)
 unset IFS

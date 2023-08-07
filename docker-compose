@@ -11,3 +11,5 @@ services:
       - DOMAIN="YOUR_WEBSITE"   
       - CLOUDFLARE_ANAMES="dashy,api,identity"
       - CRON_VALUE="0 0 * * *"
+    volumes:
+      - .log/: /log
