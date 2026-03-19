@@ -8,10 +8,9 @@ ADDRESS=${RECORD_NAME}.${DOMAIN}
 echo "My external IP address is: $TARGET_IP"
 echo "Attempting ot update  address for $ADDRESS"
 # Call the Cloudflare API to update the CNAME record
-RECORD_JSON=$(curl -X GET "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records?name=${ADDRESS}" -H "X-Auth-Email: ${EMAIL}"  -H "X-Auth-Key: ${API_KEY}") 
-echo $RECORD_JSON > $HOME/temp.txt
+RECORD_JSON=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records?name=${ADDRESS}" -H "X-Auth-Email: ${EMAIL}"  -H "X-Auth-Key: ${API_KEY}")
 
-RECORD_ID=$(echo "$RECORD_JSON" | yq '.result[0].id' $HOME/temp.txt)
+RECORD_ID=$(echo "$RECORD_JSON" | yq '.result[0].id')
 echo "Record ID: $RECORD_ID"
 
 curl -X PUT "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records/${RECORD_ID}" \
