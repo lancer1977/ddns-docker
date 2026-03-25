@@ -1,15 +1,45 @@
-version: "3.7"
+version: "3.9"
+
 services:
-  calibre:
-    image:  lancer1977/cloudflare-anames
-    container_name: cloudflare-anames
+  cloudflare-ddns:
+    build:
+      context: .
+      dockerfile: dockerfile
+    image: lancer1977/cloudflare-ddns:latest
     environment:
-      - EMAIL="YOUR_EMAIL"
-      - API_KEY="YOUR_CLOUDFLARE_API_KEY"
-      - ZONE_ID="YOUR_CLOUDFLARE_ZONE_ID"
-      - API_TOKEN="YOUR_CLOUDFLARE_API_TOKEN"
-      - DOMAIN="YOUR_WEBSITE"   
-      - CLOUDFLARE_ANAMES="dashy,api,identity"
-      - CRON_VALUE="0 0 * * *"
+      - CF_ZONE_NAME=example.com
+      - CF_CANONICAL_LABEL=home
+      - CF_CNAME_LABELS=dashy,api,identity
+      - CF_ENABLE_IPV4=true
+      - CF_ENABLE_IPV6=false
+      - CF_PROXIED=true
+      - CF_TTL=1
+      - SLEEP_SECONDS=300
+      - RUN_ON_STARTUP=true
+      - HEALTH_MAX_AGE_SECONDS=1800
+      - CF_API_TOKEN_FILE=/run/secrets/cf_api_token
+      - CF_ZONE_ID_FILE=/run/secrets/cf_zone_id
+    secrets:
+      - cf_api_token
+      - cf_zone_id
     volumes:
-      - .log/: /log
+      - ddns-state:/state
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+      update_config:
+        order: start-first
+        failure_action: rollback
+
+volumes:
+  ddns-state:
+
+secrets:
+  cf_api_token:
+    external: true
+  cf_zone_id:
+    external: true

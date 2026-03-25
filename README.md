@@ -11,6 +11,28 @@
 - Service hostnames stay stable and only depend on a CNAME target.
 - Minimizes Cloudflare API writes and reduces DNS drift.
 
+## Authentication
+
+**This container uses Bearer Token authentication exclusively.**
+
+Cloudflare supports two authentication methods:
+1. **Bearer Token (API Token)** - Recommended. Scoped permissions, can be rotated without affecting other services.
+2. **Global API Key + Email** - Deprecated for this project. Provides full account access; not recommended for production.
+
+### Why Bearer Token Only?
+- **Security**: API tokens can be scoped to specific zones and permissions (DNS:Edit only).
+- **Rotation**: Tokens can be rotated independently without changing your account password.
+- **Audit**: Token usage is logged separately in Cloudflare audit trails.
+- **Least privilege**: Tokens only have the permissions you grant them.
+
+### Migration from Global API Key
+If you previously used `CF_API_KEY` and `CF_EMAIL`:
+1. Create a new API token in Cloudflare Dashboard (My Profile > API Tokens)
+2. Grant Zone:DNS:Edit permissions for your specific zone
+3. Create Docker secrets for the new token (see Swarm setup below)
+4. Remove any old `CF_API_KEY` and `CF_EMAIL` environment variables
+5. Rotate or delete the old Global API Key
+
 ## Required Cloudflare token scope
 Create an API token with:
 - Zone: `DNS:Edit`

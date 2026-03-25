@@ -1,26 +1,19 @@
-FROM alpine:latest
-env EMAIL "YOUR_EMAIL"
-env API_KEY "YOUR_CLOUDFLARE_API_KEY"
-env ZONE_ID "YOUR_CLOUDFLARE_ZONE_ID"
-env API_TOKEN "YOUR_CLOUDFLARE_API_TOKEN"
-ENV DOMAIN "polyhydragames.com"
-ENV CLOUDFLARE_ANAMES "dashy,api,identity"
-ENV CRON_VALUE "1 * * * *"
+FROM alpine:3.20
 
-# Install necessary packages (curl in this case) if required
-RUN apk update && apk add --no-cache bash dcron curl
-RUN wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O yq
-RUN chmod +x yq
-RUN mv yq /usr/local/bin/
-RUN mkdir /logs
+RUN apk add --no-cache bash curl jq ca-certificates
 
-# Copy the Linux script into the container
-COPY loop.sh /scripts/loop.sh
-COPY cloudflare.sh /scripts/cloudflare.sh
+WORKDIR /app
 
-# Set execute permissions for the script
-RUN chmod +x /scripts/*.sh
+COPY scripts/ddns-sync.sh /scripts/ddns-sync.sh
+COPY scripts/entrypoint.sh /scripts/entrypoint.sh
+COPY scripts/healthcheck.sh /scripts/healthcheck.sh
 
-RUN echo "${CRON_VALUE} /bin/bash /scripts/loop.sh >> /logs/cron_log.txt 2>&1" > /var/spool/cron/crontabs/root
-# Set the entrypoint script as the entry point for the container
-CMD crond -f -l 8 && tail -f /dev/null
+RUN chmod +x /scripts/*.sh \
+  && mkdir -p /state
+
+VOLUME ["/state"]
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD /scripts/healthcheck.sh
+
+ENTRYPOINT ["/scripts/entrypoint.sh"]
