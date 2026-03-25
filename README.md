@@ -77,6 +77,30 @@ docker service logs -f ddns_cloudflare-ddns
 - `SLEEP_SECONDS`: poll interval in seconds
 - `HEALTH_MAX_AGE_SECONDS`: max age of successful sync before unhealthy
 
+## Health Checks
+
+The container includes a Docker HEALTHCHECK that verifies:
+1. Last successful sync is within `HEALTH_MAX_AGE_SECONDS` (default 30 minutes)
+2. DNS resolution is working (can resolve `api.cloudflare.com`)
+3. Cloudflare API endpoint is reachable
+
+Check container health:
+```bash
+docker inspect --format='{{.State.Health.Status}}' <container_id>
+```
+
+## Log Rotation
+
+Docker logging is configured with rotation to prevent log files from growing indefinitely:
+- Driver: `json-file`
+- Max size: `10m` per file
+- Max files: `3` (keeps up to 30MB of logs total)
+
+Logs can be viewed with:
+```bash
+docker service logs -f ddns_cloudflare-ddns
+```
+
 ## Notes
 - Rotate any previously exposed API keys/tokens.
 - Prefer token auth over global API key/email.
